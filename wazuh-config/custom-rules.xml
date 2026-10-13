@@ -1,0 +1,57 @@
+<!--
+  SOC-Copilot — Règles de détection custom
+  Fichier : /var/ossec/etc/rules/local_rules.xml
+-->
+<group name="local,soc-copilot,">
+
+  <!-- ====== Injection SQL (web) ====== -->
+  <rule id="100200" level="12">
+    <if_sid>31103</if_sid>
+    <description>Multiple SQL injection attempts - web application attack</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <!-- ====== Malware téléchargé / exécuté (Windows / Sysmon) ====== -->
+  <rule id="100211" level="12">
+    <if_sid>92203</if_sid>
+    <description>Executable malveillant detecte dans Downloads</description>
+    <mitre>
+      <id>T1204</id>
+    </mitre>
+  </rule>
+
+  <!-- ====== Corrélation : brute force SSH ====== -->
+  <rule id="100300" level="10" frequency="5" timeframe="120">
+    <if_matched_sid>5760</if_matched_sid>
+    <same_source_ip />
+    <description>Multiples echecs d'authentification SSH depuis la meme IP (brute force)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+  <!-- ====== Corrélation : connexion réussie après brute force ====== -->
+  <rule id="100301" level="12">
+    <if_sid>5715</if_sid>
+    <if_matched_sid>100300</if_matched_sid>
+    <same_source_ip />
+    <description>Connexion SSH reussie apres brute force - compromission probable</description>
+    <mitre>
+      <id>T1110</id>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+  <!-- ====== Threat Intel : IP présente dans la liste MISP (CDB) ====== -->
+  <rule id="100400" level="12">
+    <if_group>web</if_group>
+    <list field="srcip" lookup="address_match_key">etc/lists/misp-malicious-ip</list>
+    <description>Threat Intel - IP source presente dans MISP (IOC malveillant connu)</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+</group>

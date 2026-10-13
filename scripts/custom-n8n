@@ -1,0 +1,17 @@
+#!/bin/bash
+# =============================================================
+# SOC-Copilot — Intégration Wazuh -> n8n
+# Fichier : /var/ossec/integrations/custom-n8n
+# Déclaré dans ossec.conf (voir wazuh-config/README.md)
+# Envoie l'alerte JSON au webhook n8n.
+# =============================================================
+
+ALERTFILE="$1"          # fichier d'alerte fourni par Wazuh
+HOOK_URL="$3"           # URL du webhook (depuis ossec.conf)
+
+# Poste l'alerte complète au webhook n8n
+curl -s -X POST "$HOOK_URL" \
+  -H "Content-Type: application/json" \
+  -d @"$ALERTFILE"
+
+exit 0
